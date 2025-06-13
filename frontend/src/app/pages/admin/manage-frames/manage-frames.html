@@ -1,0 +1,54 @@
+<div class="container mt-4">
+  <h3>Add New Frame</h3>
+
+  <form (ngSubmit)="addFrame()">
+    <input [(ngModel)]="newFrame.title" name="title" placeholder="Title" required />
+
+  <!-- SIZE CHECKBOXES -->
+<label>Sizes:</label><br />
+<div *ngFor="let size of availableSizes">
+  <input type="checkbox" [value]="size" (change)="toggleSelection(size, 'size')" [checked]="selectedSizes.includes(size)" />
+  {{ size }}
+</div>
+
+<!-- COLOR CHECKBOXES -->
+<label>Colors:</label><br />
+<div *ngFor="let color of availableColors">
+  <input type="checkbox" [value]="color" (change)="toggleSelection(color, 'color')" [checked]="selectedColors.includes(color)" />
+  {{ color }}
+</div>
+
+    <input [(ngModel)]="newFrame.material" name="material" placeholder="Material" required />
+    <input type="number" [(ngModel)]="newFrame.price" name="price" placeholder="Price" required />
+
+    <!-- Image Upload -->
+   <input type="file" (change)="onFileChange($event, 'image')" name="image" />
+   <!-- Video Upload -->
+   <input type="file" (change)="onFileChange($event, 'video')" name="video" />
+
+<div class="form-group">
+  <label>
+    <input type="checkbox" [(ngModel)]="newFrame.outOfStock" name="outOfStock" />
+    Out of Stock
+  </label>
+</div>
+
+    <button type="submit">Add Frame</button>
+  </form>
+  <br>
+
+  <h3>List of Frames</h3>
+  <ul>
+    <li *ngFor="let frame of frames">
+      {{ frame.title }} - ₹{{ frame.price }}
+    </li>
+  </ul>
+
+    <h3>Delete Frames</h3>
+<ul>
+  <li *ngFor="let frame of frames">
+    <strong>{{ frame.title }}</strong> - ₹{{ frame.price }}
+    <button (click)="deleteFrame(frame._id!)">Delete</button>
+  </li>
+</ul>
+</div>

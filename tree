@@ -1,0 +1,57 @@
+.
+├── backend
+│   ├── models
+│   │   ├── Admin.js
+│   │   └── Frame.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── routes
+│   │   ├── adminRoutes.js
+│   │   └── frameRoutes.js
+│   └── server.js
+├── frontend
+│   ├── angular.json
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── public
+│   │   └── favicon.ico
+│   ├── README.md
+│   ├── src
+│   │   ├── app
+│   │   │   ├── app.config.server.ts
+│   │   │   ├── app.config.ts
+│   │   │   ├── app.css
+│   │   │   ├── app.html
+│   │   │   ├── app.routes.server.ts
+│   │   │   ├── app.routes.ts
+│   │   │   ├── app.spec.ts
+│   │   │   ├── app.ts
+│   │   │   ├── guards
+│   │   │   │   ├── auth-guard.spec.ts
+│   │   │   │   └── auth-guard.ts
+│   │   │   ├── pages
+│   │   │   │   └── admin
+│   │   │   │       ├── dashboard
+│   │   │   │       │   ├── dashboard.css
+│   │   │   │       │   ├── dashboard.html
+│   │   │   │       │   ├── dashboard.spec.ts
+│   │   │   │       │   └── dashboard.ts
+│   │   │   │       └── login
+│   │   │   │           ├── login.css
+│   │   │   │           ├── login.html
+│   │   │   │           ├── login.spec.ts
+│   │   │   │           └── login.ts
+│   │   │   └── services
+│   │   │       ├── auth.spec.ts
+│   │   │       └── auth.ts
+│   │   ├── index.html
+│   │   ├── main.server.ts
+│   │   ├── main.ts
+│   │   ├── server.ts
+│   │   └── styles.css
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   └── tsconfig.spec.json
+└── tree
+
+14 directories, 41 files
