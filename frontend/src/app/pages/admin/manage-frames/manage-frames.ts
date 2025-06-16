@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
 import { Frame, FrameService } from '../../../services/frame.service';
-import { FormsModule } from '@angular/forms'; // for ngModel
-import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../../services/auth';
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms'; 
+import { Component, NgZone, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-manage-frames',
@@ -16,16 +18,15 @@ import { HttpClient } from '@angular/common/http';
 export class ManageFrames implements OnInit {
    availableSizes = ['8x10', '10x12', '12x16', '16x20', '18x24'];
   availableColors = ['Black', 'White', 'Brown', 'Gold', 'Silver'];
-
   selectedSizes: string[] = [];
-selectedColors: string[] = [];
+  selectedColors: string[] = [];
+  pricing: { size: string; price: number }[] = [];
 
   newFrame: Frame = {
     title: '',
-    sizes: [],
     colors: [],
     material: '',
-    price: 0,
+    pricing: [],      // ✅ new structure replacing sizes + price
     image: '',
     video: '',
     outOfStock: false,
@@ -36,11 +37,16 @@ selectedColors: string[] = [];
 
   imageFile: File | null = null;
   videoFile: File | null = null;
+  sizePrices: any;
+
 
   constructor(
     private http: HttpClient,
-    private toastr: ToastrService,
-    private frameService: FrameService
+    private ngZone: NgZone,
+    private frameService: FrameService,
+    private authService: AuthService,
+    private router: Router,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit() {
@@ -49,17 +55,23 @@ selectedColors: string[] = [];
 
   loadFrames() {
     this.frameService.getAll().subscribe(data => {
+       this.ngZone.run(() => {
       this.frames = data;
     });
+    });
   }
-  
+   onLogout() {
+    this.authService.logout();
+    this.toastr.success('Logged out successfully', 'Success');
+    this.router.navigate(['']);
+  }
+
   resetForm() {
   this.newFrame = {
     title: '',
-    sizes: [],
     colors: [],
     material: '',
-    price: 0,
+    pricing: [],      // ✅ new structure replacing sizes + price
     image: '',
     video: '',
     outOfStock: false
@@ -73,27 +85,38 @@ selectedColors: string[] = [];
 addFrame() {
   const formData = new FormData();
   formData.append('title', this.newFrame.title);
-  formData.append('sizes', this.selectedSizes.join(','));   // ✅ plural
+  //formData.append('sizes', this.selectedSizes.join(','));   // ✅ plural
   formData.append('colors', this.selectedColors.join(',')); // ✅ plural
   formData.append('material', this.newFrame.material);
-  formData.append('price', this.newFrame.price.toString());
+  formData.append('pricing', JSON.stringify(this.pricing));
   formData.append('outOfStock', String(this.newFrame.outOfStock));
 
   if (this.imageFile) formData.append('image', this.imageFile);
   if (this.videoFile) formData.append('video', this.videoFile);
+
+  // Build pricing array from selectedSizes and sizePrices
+  const pricingArray = this.selectedSizes.map(size => {
+    const matched = this.pricing.find(p => p.size === size);
+  return {
+    size,
+    price: matched ? matched.price : 0
+  }
+  });
 
   this.http.post(`${this.baseUrl}/api/frames`, formData).subscribe({
     next: () => {
       this.toastr.success('Frame added successfully!');
       this.newFrame = {
           title: '',
-          sizes: [],
           colors: [],
           material: '',
-          price: 0,
+          pricing: [],      // ✅ new structure replacing sizes + price
           image: '',
           video: ''
         };
+        this.selectedSizes = [];
+        this.selectedColors = [];
+        this.pricing = []; 
         this.loadFrames();
         this.resetForm();
     },
@@ -104,16 +127,55 @@ addFrame() {
   });
 }
 
-toggleSelection(value: string, type: 'size' | 'color') {
-  const list = type === 'size' ? this.selectedSizes : this.selectedColors;
-  const index = list.indexOf(value);
+//For Sizes
+toggleSizeSelection(size: string) {
+  const index = this.selectedSizes.indexOf(size);
 
-  if (index > -1) {
-    list.splice(index, 1); // remove
+  if (index === -1) {
+    this.selectedSizes.push(size);
+     this.pricing.push({ size, price: 0 }); // initialize with 0 price
+   // this.sizePrices[size] = 0; // default
   } else {
-    list.push(value); // add
+    this.selectedSizes.splice(index, 1);
+   this.pricing = this.pricing.filter(p => p.size !== size);
   }
 }
+
+updatePrice(size: string, newPrice: number) {
+  const item = this.pricing.find(p => p.size === size);
+  if (item) {
+    item.price = newPrice;
+  }
+}
+getPrice(size: string): number {
+  const item = this.pricing.find(p => p.size === size);
+  return item ? item.price : 0;
+}
+
+getValueAsNumber(event: Event): number {
+  const input = event.target as HTMLInputElement;
+  return input.valueAsNumber;
+}
+
+toggleColorSelection(color: string) {
+  const index = this.selectedColors.indexOf(color);
+  if (index === -1) {
+    this.selectedColors.push(color);
+  } else {
+    this.selectedColors.splice(index, 1);
+  }
+}
+
+// toggleSelection(value: string, type: 'size' | 'color') {
+//   const list = type === 'size' ? this.selectedSizes : this.selectedColors;
+//   const index = list.indexOf(value);
+
+//   if (index > -1) {
+//     list.splice(index, 1); // remove
+//   } else {
+//     list.push(value); // add
+//   }
+// }
 
 
 onFileChange(event: any, type: 'image' | 'video') {
@@ -124,6 +186,8 @@ onFileChange(event: any, type: 'image' | 'video') {
     this.videoFile = file;
   }
 }
+
+
 
 
   deleteFrame(id: string) {

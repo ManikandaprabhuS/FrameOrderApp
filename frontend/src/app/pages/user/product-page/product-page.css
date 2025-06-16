@@ -1,0 +1,163 @@
+.product-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.product-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+}
+
+.product-media {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .product-image,
+  .product-video {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  .product-video {
+    max-height: 300px;
+  }
+}
+
+.product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-title {
+  font-size: 2rem;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.product-pricing p {
+  margin: 0.3rem 0;
+}
+
+.action-buttons {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  .buy-btn,
+  .preview-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .buy-btn {
+    background-color: #10b981;
+    color: white;
+  }
+
+  .buy-btn:hover {
+    background-color: #059669;
+  }
+
+  .preview-btn {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .preview-btn:hover {
+    background-color: #2563eb;
+  }
+}
+
+/* Navbar styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2d2d2d;
+  color: white;
+  padding: 1rem 2rem;
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+/* Hero section */
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.buttons {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.buttons button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #2d89ff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+}
+
+.buttons button:hover {
+  background-color: #186dd9;
+}
+
+@media (min-width: 600px) {
+  .buttons {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+

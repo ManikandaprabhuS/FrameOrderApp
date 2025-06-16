@@ -1,0 +1,123 @@
+.admin-panel {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f4f8;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.frame-form {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"],
+input[type="checkbox"] {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+label {
+  font-weight: 600;
+  display: block;
+  margin: 0.5rem 0 0.25rem;
+}
+
+.size-option,
+.color-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.out-of-stock {
+  margin-top: 1rem;
+}
+
+.submit-btn {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  grid-column: span 2;
+  transition: background 0.3s;
+}
+
+.submit-btn:hover {
+  background-color: #059669;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 1rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+.delete-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background-color: #dc2626;
+}
+
+.logout-wrapper {
+  text-align: right;
+  margin-top: 2rem;
+}
+
+.logout-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #2563eb;
+}

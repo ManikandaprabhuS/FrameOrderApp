@@ -1,54 +1,112 @@
-<div class="container mt-4">
-  <h3>Add New Frame</h3>
+<div class="logout-wrapper">
+    <button class="logout-btn" (click)="onLogout()">Logout</button>
+  </div>
+  
+<section class="admin-panel">
+  <h2 class="section-title">Add New Frame</h2>
 
-  <form (ngSubmit)="addFrame()">
-    <input [(ngModel)]="newFrame.title" name="title" placeholder="Title" required />
+  <form class="frame-form" (ngSubmit)="addFrame()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Title</label>
+        <input [(ngModel)]="newFrame.title" name="title" required />
+      </div>
 
-  <!-- SIZE CHECKBOXES -->
-<label>Sizes:</label><br />
-<div *ngFor="let size of availableSizes">
-  <input type="checkbox" [value]="size" (change)="toggleSelection(size, 'size')" [checked]="selectedSizes.includes(size)" />
-  {{ size }}
-</div>
+      <div class="form-group">
+        <label>Material</label>
+        <input [(ngModel)]="newFrame.material" name="material" required />
+      </div>
 
-<!-- COLOR CHECKBOXES -->
-<label>Colors:</label><br />
-<div *ngFor="let color of availableColors">
-  <input type="checkbox" [value]="color" (change)="toggleSelection(color, 'color')" [checked]="selectedColors.includes(color)" />
-  {{ color }}
-</div>
+      <div class="form-group">
+        <label>Choose Sizes:</label>
+        <div *ngFor="let size of availableSizes" class="size-option">
+          <input type="checkbox" [value]="size" (change)="toggleSizeSelection(size)" [checked]="selectedSizes.includes(size)" />
+          {{ size }}
+          <input *ngIf="selectedSizes.includes(size)" type="number" [value]="getPrice(size)"
+            (input)="updatePrice(size, getValueAsNumber($event))" placeholder="Price" />
+        </div>
+      </div>
 
-    <input [(ngModel)]="newFrame.material" name="material" placeholder="Material" required />
-    <input type="number" [(ngModel)]="newFrame.price" name="price" placeholder="Price" required />
+      <div class="form-group">
+        <label>Choose Colors:</label>
+        <div *ngFor="let color of availableColors" class="color-option">
+          <input type="checkbox" [value]="color" [checked]="selectedColors.includes(color)"
+            (change)="toggleColorSelection(color)" />
+          {{ color }}
+        </div>
+      </div>
 
-    <!-- Image Upload -->
-   <input type="file" (change)="onFileChange($event, 'image')" name="image" />
-   <!-- Video Upload -->
-   <input type="file" (change)="onFileChange($event, 'video')" name="video" />
+      <div class="form-group">
+        <label>Image</label>
+        <input type="file" (change)="onFileChange($event, 'image')" />
+      </div>
 
-<div class="form-group">
-  <label>
-    <input type="checkbox" [(ngModel)]="newFrame.outOfStock" name="outOfStock" />
-    Out of Stock
-  </label>
-</div>
+      <div class="form-group">
+        <label>Video</label>
+        <input type="file" (change)="onFileChange($event, 'video')" />
+      </div>
 
-    <button type="submit">Add Frame</button>
+      <div class="form-group checkbox">
+        <label>
+          <input type="checkbox" [(ngModel)]="newFrame.outOfStock" name="outOfStock" />
+          Out of Stock
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Add Frame</button>
   </form>
-  <br>
 
-  <h3>List of Frames</h3>
-  <ul>
-    <li *ngFor="let frame of frames">
-      {{ frame.title }} - ₹{{ frame.price }}
-    </li>
-  </ul>
+  <h2 class="section-title">List of Frames</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Material</th>
+          <th>Colors</th>
+          <th>Pricing</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let frame of frames">
+          <td>{{ frame.title }}</td>
+          <td>{{ frame.material }}</td>
+          <td>{{ frame.colors.join(', ') }}</td>
+          <td>
+            <ul>
+              <li *ngFor="let price of frame.pricing">
+                {{ price.size }} - ₹{{ price.price }}
+              </li>
+            </ul>
+          </td>
+          <td>{{ frame.outOfStock ? 'Out of Stock' : 'In Stock' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <h3>Delete Frames</h3>
-<ul>
-  <li *ngFor="let frame of frames">
-    <strong>{{ frame.title }}</strong> - ₹{{ frame.price }}
-    <button (click)="deleteFrame(frame._id!)">Delete</button>
-  </li>
-</ul>
-</div>
+  <h2 class="section-title">Delete Frames</h2>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Material</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let frame of frames">
+          <td>{{ frame.title }}</td>
+          <td>{{ frame.material }}</td>
+          <td>
+            <button class="delete-btn" (click)="deleteFrame(frame._id!)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
