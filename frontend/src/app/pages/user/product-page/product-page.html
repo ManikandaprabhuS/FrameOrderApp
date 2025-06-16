@@ -1,0 +1,77 @@
+<!-- <swiper
+  [navigation]="true"
+  [pagination]="true"
+  class="product-swiper"
+  *ngIf="product"
+>
+  <ng-template swiperSlide>
+    <img [src]="product.imageUrl" class="slide-img" alt="Frame Image" />
+  </ng-template>
+  <ng-template swiperSlide *ngIf="product.videoUrl">
+    <video class="slide-video" controls>
+      <source [src]="product.videoUrl" type="video/mp4" />
+    </video>
+  </ng-template>
+</swiper>
+
+<div *ngIf="product" class="product-details">
+  <h2>{{ product.title }}</h2>
+  <p><strong>Material:</strong> {{ product.material }}</p>
+  <p><strong>Colors:</strong> {{ product.colors.join(', ') }}</p>
+
+  <div *ngFor="let price of product.pricing">
+    <p><strong>Size:</strong> {{ price.size }} | ₹{{ price.price }}</p>
+  </div>
+
+  <button (click)="buyNow()">Buy Now</button>
+  <button (click)="previewImage()">Image Preview</button>
+</div> -->
+
+<!-- Home Navbar -->
+<nav class="navbar">
+  <div class="logo">Frame Store</div>
+  <div class="nav-links">
+    <a routerLink="" class="nav-link">Browse Frames</a>
+    <a routerLink="admin/login" class="nav-link">Admin Panel</a>
+  </div>
+</nav>
+
+
+<!-- Product List -->
+<div class="product-container" *ngIf="product">
+  <div class="product-content">
+    <div class="product-media">
+      <img [src]="product.imageUrl" alt="Frame Image" class="product-image" />
+
+      <video
+        *ngIf="product.videoUrl"
+        class="product-video"
+        controls
+        poster="{{ product.imageUrl }}"
+      >
+        <source [src]="product.videoUrl" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div class="product-info">
+      <h2 class="product-title">{{ product.title }}</h2>
+
+      <p><strong>Material:</strong> {{ product.material }}</p>
+      <p><strong>Colors:</strong> {{ product.colors.join(', ') }}</p>
+
+      <div class="product-pricing">
+        <p *ngFor="let price of product.pricing">
+          <strong>Size:</strong> {{ price.size }} |
+          <strong>Price:</strong> ₹{{ price.price }}
+        </p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="buy-btn" (click)="buyNow()">Buy Now</button>
+        <button class="preview-btn" (click)="previewImage()">Image Preview</button>
+      </div>
+    </div>
+  </div>
+</div>
+

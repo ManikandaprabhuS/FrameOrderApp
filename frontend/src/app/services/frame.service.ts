@@ -5,10 +5,12 @@ import { Observable } from 'rxjs';
 export interface Frame {
   _id?: string;
   title: string;
-  sizes: string[];
   colors: string[];
   material: string;
-  price: number;
+   pricing: {
+    size: string;
+    price: number;
+  }[]; //
   image: string;
   video?: string;
   outOfStock?: boolean;

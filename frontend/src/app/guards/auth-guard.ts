@@ -42,7 +42,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     console.warn('🚫 Not in browser environment');
   }
   console.log('✅ Navigated to Login Page');
-  router.navigate(['']);
+  router.navigate(['admin/login']);
   return false;
 };
 

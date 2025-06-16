@@ -1,0 +1,136 @@
+.frame-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.frame-card {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  background: white;
+  transition: transform 0.3s;
+}
+
+.frame-card:hover {
+  transform: scale(1.03);
+}
+
+.frame-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.product-page {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f9f9f9;
+}
+
+.admin-btn {
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.admin-btn:hover {
+  background-color: #2563eb;
+}
+
+.frame-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.frame-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.frame-card:hover {
+  transform: translateY(-5px);
+}
+
+.frame-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+}
+
+.frame-details {
+  padding: 1rem;
+}
+
+.frame-details h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.frame-details p,
+.frame-details li {
+  margin: 0.25rem 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+ul {
+  padding-left: 1.2rem;
+  margin: 0.5rem 0 0;
+}
+.action-buttons {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.buy-btn,
+.cart-btn {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+.adminlogin-wrapper {
+  text-align: right;
+  margin-top: 2rem;
+}
+
+
+.buy-btn {
+  background-color: #10b981;
+  color: white;
+}
+
+.buy-btn:hover {
+  background-color: #059669;
+}
+
+.cart-btn {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.cart-btn:hover {
+  background-color: #2563eb;
+}

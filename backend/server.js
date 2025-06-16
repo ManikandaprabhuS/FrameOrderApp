@@ -15,6 +15,7 @@ const frameRoutes = require('./routes/frameRoutes');
 app.use('/api/frames', frameRoutes);
 
 
+
 const uri = process.env.MONGO_URI?.trim(); // ✅ remove any trailing space
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

@@ -26,14 +26,23 @@ const upload = multer({
 router.post('/', upload.fields([{ name: 'image' }, { name: 'video' }]), async (req, res) => {
   try {
     console.log("Incoming data:", req.body);
-    const { title, sizes, colors, material, price,outOfStock } = req.body;
+    const { title, colors, material, outOfStock } = req.body;
+    const pricingRaw = req.body.pricing; // expected to be a JSON string
+    let pricing = [];
+    try {
+      pricing = JSON.parse(pricingRaw);
+      if (!Array.isArray(pricing) || pricing.length === 0) {
+        return res.status(400).json({ message: 'Pricing data is required' });
+      }
+    } catch (err) {
+      return res.status(400).json({ message: 'Invalid pricing format' });
+    }
 
     // Convert comma-separated strings to arrays
-    const sizesArray = sizes ? sizes.split(',').map(s => s.trim()) : [];
     const colorsArray = colors ? colors.split(',').map(c => c.trim()) : [];
 
-     console.log('Sizes:', sizes);     // Should show array
-     console.log('Colors:', colors);
+    // Should show array
+    console.log('Colors:', colors);
 
     // You can access uploaded files via req.files.image[0] and req.files.video[0]
     const imageFile = req.files.image?.[0];
@@ -42,48 +51,47 @@ router.post('/', upload.fields([{ name: 'image' }, { name: 'video' }]), async (r
     let imageUrl = '';
     let videoUrl = '';
 
-      if (imageFile) {
-        try{
-      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-        resource_type: 'image',
-        folder: 'frames'
-      });
-      imageUrl = imageUpload.secure_url;
-      console.log('✅ Image uploaded:', imageUrl);
-    } catch (uploadErr) {
+    if (imageFile) {
+      try {
+        const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+          resource_type: 'image',
+          folder: 'frames'
+        });
+        imageUrl = imageUpload.secure_url;
+        console.log('✅ Image uploaded:', imageUrl);
+      } catch (uploadErr) {
         console.error('❌ Image upload failed:', uploadErr.message);
         return res.status(500).json({ message: 'Image upload failed. Please try again later.' });
       }
-  } else {
+    } else {
       return res.status(400).json({ message: 'Image file is missing.' });
     }
 
     if (videoFile) {
-      try{
-      const videoUpload = await cloudinary.uploader.upload(videoFile.path, {
-        resource_type: 'video',
-        folder: 'frames'
-      });
-      videoUrl = videoUpload.secure_url;
-      console.log('✅ Video uploaded:', videoUrl);
-    } catch (uploadErr) {
+      try {
+        const videoUpload = await cloudinary.uploader.upload(videoFile.path, {
+          resource_type: 'video',
+          folder: 'frames'
+        });
+        videoUrl = videoUpload.secure_url;
+        console.log('✅ Video uploaded:', videoUrl);
+      } catch (uploadErr) {
         console.error('❌ Video upload failed:', uploadErr.message);
         return res.status(500).json({ message: 'Video upload failed. Please try again later.' });
       }
-  } else {
+    } else {
       return res.status(400).json({ message: 'Video file is missing.' });
     }
 
     // Just for demonstration; in real app you'd save to cloud storage or convert to base64
     const newFrame = new Frame({
       title,
-      sizes: sizesArray,           // ✅ Matching MongoDB schema
-      colors: colorsArray,
+      pricing,
+      colors: colors ? colors.split(',').map(c => c.trim()) : [],
       material,
-      price: Number(price),
       imageUrl: imageUrl,
       videoUrl: videoUrl,
-      outOfStock: outOfStock === 'true', 
+      outOfStock: outOfStock === 'true',
     });
 
     await newFrame.save();
@@ -125,6 +133,23 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to update frame', error });
   }
 });
+
+// GET /api/frames/:id
+router.get('/:id', async (req, res) => {
+  try {
+    console.log(req.params.id);
+    const frame = await Frame.findById(req.params.id);
+    if (!frame) {
+      return res.status(404).json({ message: 'Frame not found' });
+    }
+    console.log(frame);
+    res.json(frame);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 // ❌ Delete frame
 router.delete('/:id', async (req, res) => {

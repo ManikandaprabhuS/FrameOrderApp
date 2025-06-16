@@ -81,9 +81,9 @@
                 "input": "public"
               }
             ],
-            "serve" : [
+            "serve": [
               {
-              "start": "ng serve --port 4300"
+                "start": "ng serve --port 4999"
               }
             ],
             "styles": [
