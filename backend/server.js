@@ -14,6 +14,8 @@ app.use('/api/admin', adminRoutes);
 const frameRoutes = require('./routes/frameRoutes');
 app.use('/api/frames', frameRoutes);
 
+const userAuthRoutes = require('./routes/userRoutes');
+app.use('/api/users', userAuthRoutes);
 
 
 const uri = process.env.MONGO_URI?.trim(); // ✅ remove any trailing space
