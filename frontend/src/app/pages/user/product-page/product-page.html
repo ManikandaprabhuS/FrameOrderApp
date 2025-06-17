@@ -60,6 +60,23 @@
       <p><strong>Material:</strong> {{ product.material }}</p>
       <p><strong>Colors:</strong> {{ product.colors.join(', ') }}</p>
 
+      <!-- Size Selector -->
+      <div class="size-selection">
+        <label for="size"><strong>Select Size:</strong></label>
+        <select id="size" [(ngModel)]="selectedSize" (change)="onSizeChange()">
+          <option value="">-- Select Size --</option>
+          <option *ngFor="let price of product.pricing" [value]="price.size">
+            {{ price.size }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Show Selected Price -->
+      <div *ngIf="selectedPrice !== null" class="selected-price">
+        <p><strong>Selected Price:</strong> ₹{{ selectedPrice }}</p>
+      </div>
+      
+       <!-- Full Pricing List (optional) -->
       <div class="product-pricing">
         <p *ngFor="let price of product.pricing">
           <strong>Size:</strong> {{ price.size }} |
