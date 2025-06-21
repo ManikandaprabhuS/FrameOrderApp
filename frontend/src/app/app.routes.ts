@@ -7,6 +7,7 @@ import { FrameGallery } from './pages/user/frame-gallery/frame-gallery';
 import { Component } from '@angular/core';
 import { ProductPage } from './pages/user/product-page/product-page';
 import { Routes } from '@angular/router';
+import { Userlogin } from './pages/user/userlogin/userlogin';
 
 
 export const routes: Routes = [
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'admin/manageFrames', canActivate: [authGuard], component: ManageFrames},
   { path: 'admin/dashboard',  canActivate: [authGuard],  component: Dashboard},
   {path: 'product/:id',component: ProductPage },
+  {path: 'users/login', component: Userlogin}
 
 ];

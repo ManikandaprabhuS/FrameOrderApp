@@ -2,6 +2,8 @@ import { CommonModule } from "@angular/common";
 import { HttpClient, HttpClientModule } from "@angular/common/http";
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
+import { AuthService } from "../../../services/auth";
+import { ToastrService } from "ngx-toastr";
 
 
 @Component({
@@ -18,7 +20,10 @@ export class FrameGallery {
   baseUrl = 'http://localhost:5000'; // adjust if deployed
 
    constructor(
-    private router: Router,private http: HttpClient
+    private router: Router,
+    private authService: AuthService,
+    private toastr: ToastrService,
+    private http: HttpClient
   ) {}
  
   ngOnInit(): void {
@@ -41,4 +46,13 @@ onAddToCart(frameId: string) {
   console.log('Add to Cart clicked for ID:', frameId);
   // Add logic to update cart (later)
 }
+
+onLogout() {
+    localStorage.clear();
+    this.authService.logout();
+    this.toastr.success('Logged out successfully', 'Success');
+    this.router.navigate(['']);
+  }
+
+
 }
