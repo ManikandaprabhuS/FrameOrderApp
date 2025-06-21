@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../services/auth';
+import { ToastrService } from 'ngx-toastr';
 //import { SwiperModule } from 'swiper/angular';
 //import SwiperCore, { Navigation, Pagination} from 'Swiper';
 
@@ -26,7 +28,10 @@ selectedPrice: number | null = null;
   product: any;
   baseUrl = 'http://localhost:5000';
 
-  constructor(private router: Router,private route: ActivatedRoute, private http: HttpClient) {}
+  constructor(private router: Router,
+        private authService: AuthService,
+        private toastr: ToastrService,
+    private route: ActivatedRoute, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.productId = this.route.snapshot.params['id'];
@@ -47,7 +52,29 @@ selectedPrice: number | null = null;
     return;
   } else{
     alert(`Proceeding to buy frame: ${this.product.title} and its Size : ${this.selectedSize} price: ${this.selectedPrice}`);
-    
+    const token = localStorage.getItem('userToken'); // Check user login
+    console.log(token);
+    const frameId = this.product._id;
+    if (!token) {
+    // Not logged in → redirect to login with product info
+    this.router.navigate(['users/login'], {
+      queryParams: {
+        frameId: frameId,
+        size: this.selectedSize,
+        price: this.selectedPrice
+      }
+    });
+    } else {
+    // Logged in → go to payment page
+    this.router.navigate(['/payment'], {
+      queryParams: {
+        frameId: frameId,
+        size: this.selectedSize,
+        price: this.selectedPrice
+      }
+    });
+  }
+
   }
 
 }
@@ -56,5 +83,13 @@ selectedPrice: number | null = null;
     alert('Show image overlay preview logic here.');
     // You can later expand this with a modal or canvas rendering
   }
+
+onLogout() {
+  localStorage.clear();
+    this.authService.logout();
+    this.toastr.success('Logged out successfully', 'Success');
+    this.router.navigate(['']);
+  }
+
 
 }

@@ -23,10 +23,13 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 } // 50 MB
 });
 
-router.post('/', upload.fields([{ name: 'image' }, { name: 'video' }]), async (req, res) => {
+router.post('/', upload.fields([
+  { name: 'image', maxCount: 10}, 
+  { name: 'video' , maxCount: 1}])  , async (req, res) => {
   try {
     console.log("Incoming data:", req.body);
     const { title, colors, material, outOfStock } = req.body;
+
     const pricingRaw = req.body.pricing; // expected to be a JSON string
     let pricing = [];
     try {
@@ -45,27 +48,29 @@ router.post('/', upload.fields([{ name: 'image' }, { name: 'video' }]), async (r
     console.log('Colors:', colors);
 
     // You can access uploaded files via req.files.image[0] and req.files.video[0]
-    const imageFile = req.files.image?.[0];
+    const imageFiles = req.files.image?.[0];
     const videoFile = req.files.video?.[0];
 
-    let imageUrl = '';
+    let imageUrls = [];
     let videoUrl = '';
 
-    if (imageFile) {
-      try {
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-          resource_type: 'image',
-          folder: 'frames'
-        });
-        imageUrl = imageUpload.secure_url;
-        console.log('✅ Image uploaded:', imageUrl);
-      } catch (uploadErr) {
-        console.error('❌ Image upload failed:', uploadErr.message);
-        return res.status(500).json({ message: 'Image upload failed. Please try again later.' });
-      }
-    } else {
-      return res.status(400).json({ message: 'Image file is missing.' });
+   if (req.files.image && req.files.image.length > 0) {
+  try {
+    for (const file of req.files.image) {
+      const uploaded = await cloudinary.uploader.upload(file.path, {
+        resource_type: 'image',
+        folder: 'frames'
+      });
+      imageUrls.push(uploaded.secure_url);
     }
+    console.log('✅ All images uploaded:', imageUrls);
+  } catch (uploadErr) {
+    console.error('❌ Image upload failed:', uploadErr.message);
+    return res.status(500).json({ message: 'Image upload failed. Please try again.' });
+  }
+}else {
+  return res.status(400).json({ message: 'At least one image file is required.' });
+}
 
     if (videoFile) {
       try {
@@ -89,7 +94,7 @@ router.post('/', upload.fields([{ name: 'image' }, { name: 'video' }]), async (r
       pricing,
       colors: colors ? colors.split(',').map(c => c.trim()) : [],
       material,
-      imageUrl: imageUrl,
+      imageUrls: imageUrls,
       videoUrl: videoUrl,
       outOfStock: outOfStock === 'true',
     });

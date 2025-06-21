@@ -1,0 +1,35 @@
+<div class="auth-container">
+  <h2 *ngIf="isLoginMode">Login</h2>
+  <h2 *ngIf="!isLoginMode">Register</h2>
+
+  <form *ngIf="isLoginMode" (ngSubmit)="login()">
+    <label>Email ID:</label>
+    <input [(ngModel)]="email" name="email" required />
+
+    <label>Password:</label>
+    <input type="password" [(ngModel)]="password" name="password" required />
+
+    <button type="submit">Login</button>
+    <p>Don't have an account? <a (click)="toggleMode()" style="cursor: pointer">Register here</a></p>
+  </form>
+
+  <form *ngIf="!isLoginMode" (ngSubmit)="register()">
+    <label>Full Name:</label>
+    <input [(ngModel)]="name" name="name" required />
+
+    <label>Address:</label>
+    <input [(ngModel)]="address" name="address" required />
+
+    <label>Phone Number:</label>
+    <input [(ngModel)]="phone" name="phoneNumber" required />
+
+    <label>Email ID:</label>
+    <input [(ngModel)]="email" name="email" required />
+
+    <label>Password:</label>
+    <input type="password" [(ngModel)]="password" name="Password" required />
+
+    <button type="submit">Register</button>
+    <p>Already have an account? <a (click)="toggleMode()" style="cursor: pointer">Login here</a></p>
+  </form>
+</div>

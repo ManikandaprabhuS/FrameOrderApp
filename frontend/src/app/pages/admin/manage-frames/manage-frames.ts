@@ -34,8 +34,7 @@ export class ManageFrames implements OnInit {
     frames: Frame[] = [];
   baseUrl = 'http://localhost:5000'; 
 
-
-  imageFile: File | null = null;
+  imageFiles: File[] = [];
   videoFile: File | null = null;
   sizePrices: any;
 
@@ -78,7 +77,7 @@ export class ManageFrames implements OnInit {
   };
   this.selectedSizes = [];
   this.selectedColors = [];
-  this.imageFile = null;
+  this.imageFiles = [];
   this.videoFile = null;
 }
 
@@ -91,7 +90,11 @@ addFrame() {
   formData.append('pricing', JSON.stringify(this.pricing));
   formData.append('outOfStock', String(this.newFrame.outOfStock));
 
-  if (this.imageFile) formData.append('image', this.imageFile);
+  // 👇 Append all selected image files
+  this.imageFiles.forEach((file, index) => {
+    formData.append('image', file); // same key name "images"
+  });
+
   if (this.videoFile) formData.append('video', this.videoFile);
 
   // Build pricing array from selectedSizes and sizePrices
@@ -114,6 +117,7 @@ addFrame() {
           image: '',
           video: ''
         };
+        this.imageFiles = [];
         this.selectedSizes = [];
         this.selectedColors = [];
         this.pricing = []; 
@@ -178,12 +182,18 @@ toggleColorSelection(color: string) {
 // }
 
 
-onFileChange(event: any, type: 'image' | 'video') {
+onFileChange(event: any) {
+  if (event.target.files && event.target.files.length > 0) {
+    this.imageFiles = Array.from(event.target.files);
+  }
+}
+
+onFileVideoChange(event: any, type: 'video') {
   const file = event.target.files[0];
-  if (type === 'image') {
-    this.imageFile = file;
-  } else if (type === 'video') {
+   if (type === 'video') {
     this.videoFile = file;
+  } else {
+    this.toastr.error('This is Not correct Format please upload Valid Video format');
   }
 }
 
