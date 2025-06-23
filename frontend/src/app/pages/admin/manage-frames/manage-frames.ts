@@ -37,6 +37,7 @@ export class ManageFrames implements OnInit {
   imageFiles: File[] = [];
   videoFile: File | null = null;
   sizePrices: any;
+  centerImageFile: File | null = null;
 
 
   constructor(
@@ -75,10 +76,12 @@ export class ManageFrames implements OnInit {
     video: '',
     outOfStock: false
   };
+  // Reset all arrays & files
   this.selectedSizes = [];
   this.selectedColors = [];
   this.imageFiles = [];
   this.videoFile = null;
+  this.centerImageFile = null;  // ✅ Added this line for centerImage
 }
 
 addFrame() {
@@ -96,6 +99,9 @@ addFrame() {
   });
 
   if (this.videoFile) formData.append('video', this.videoFile);
+  if (this.centerImageFile) {
+  formData.append('centerImage', this.centerImageFile);
+}
 
   // Build pricing array from selectedSizes and sizePrices
   const pricingArray = this.selectedSizes.map(size => {
@@ -117,12 +123,13 @@ addFrame() {
           image: '',
           video: ''
         };
+        this.resetForm();
         this.imageFiles = [];
         this.selectedSizes = [];
         this.selectedColors = [];
         this.pricing = []; 
         this.loadFrames();
-        this.resetForm();
+
     },
     error: (err: any) => {
       this.toastr.error('Error adding frame');
@@ -181,6 +188,9 @@ toggleColorSelection(color: string) {
 //   }
 // }
 
+onCenterImageSelected(event: any) {
+  this.centerImageFile = event.target.files[0];
+}
 
 onFileChange(event: any) {
   if (event.target.files && event.target.files.length > 0) {
@@ -197,9 +207,6 @@ onFileVideoChange(event: any, type: 'video') {
   }
 }
 
-
-
-
   deleteFrame(id: string) {
     this.frameService.delete(id).subscribe(() => {
       this.toastr.success('Successfully Deleted')
@@ -208,3 +215,4 @@ onFileVideoChange(event: any, type: 'video') {
     });
   }
 }
+

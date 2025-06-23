@@ -35,6 +35,7 @@ selectedPrice: number | null = null;
 
   ngOnInit(): void {
     this.productId = this.route.snapshot.params['id'];
+    //console.log(this.productId);
     this.http.get(`${this.baseUrl}/api/frames/${this.productId}`).subscribe(data => {
       this.product = data;
       console.log(data);
@@ -74,14 +75,13 @@ selectedPrice: number | null = null;
       }
     });
   }
-
   }
-
 }
 
-  previewImage() {
-    alert('Show image overlay preview logic here.');
-    // You can later expand this with a modal or canvas rendering
+  previewImage(id: string) {
+    console.log(id);
+   // alert('Show image overlay preview logic here.');
+      this.router.navigate(['/preview', id]);
   }
 
 onLogout() {

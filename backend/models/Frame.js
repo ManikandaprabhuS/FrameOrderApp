@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const frameSchema = new mongoose.Schema({
   title: { type: String, required: true },
   imageUrls: [String],
+  centerImage: {
+  type: String,
+  required: true // or false if optional
+},
   colors: [String], // e.g., ["Black", "White", "Brown"]
   material: { type: String, required: true }, // e.g., "Wood", "Metal"
   pricing: [

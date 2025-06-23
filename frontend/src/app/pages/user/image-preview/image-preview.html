@@ -1,0 +1,37 @@
+<div class="preview-container" *ngIf="frameData">
+  <h2>Image Preview for {{ frameData.title }}</h2>
+
+  <!-- Upload Section -->
+  <div class="upload-section">
+    <label>Upload Your Image:</label>
+    <input type="file" (change)="onImageUpload($event)" />
+  </div>
+
+  <!-- Center Image Selection -->
+  <div class="center-image-list">
+    <p><strong>Select a Center Image:</strong></p>
+    <div class="center-thumbnails">
+      <img
+        *ngIf="frameData.centerImage"
+        [src]="frameData.centerImage"
+        (click)="selectCenterImage(frameData.centerImage)"
+        [class.selected]="selectedCenterImage === frameData.centerImage"
+      />
+    </div>
+  </div>
+
+  <!-- Preview Area -->
+  <div class="preview-display" *ngIf="uploadedImage && selectedCenterImage">
+    <div class="frame-preview">
+      <img [src]="selectedCenterImage" class="center-frame" />
+      <img [src]="uploadedImage" class="user-image" />
+    </div>
+  </div>
+
+  <!-- Proceed Button -->
+  <div class="proceed">
+    <button (click)="proceedToOrder()" [disabled]="!uploadedImage || !selectedCenterImage">
+      Proceed to Order
+    </button>
+  </div>
+</div>
