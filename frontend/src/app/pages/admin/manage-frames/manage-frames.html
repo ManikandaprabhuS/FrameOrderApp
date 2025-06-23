@@ -46,6 +46,10 @@
         <input type="file" (change)="onFileVideoChange($event, 'video')" />
       </div>
 
+      <label for="centerImage">Center Preview Image</label>
+<input type="file" name="centerImage" (change)="onCenterImageSelected($event)">
+
+
       <div class="form-group checkbox">
         <label>
           <input type="checkbox" [(ngModel)]="newFrame.outOfStock" name="outOfStock" />

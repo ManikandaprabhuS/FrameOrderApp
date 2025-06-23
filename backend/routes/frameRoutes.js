@@ -25,6 +25,7 @@ const upload = multer({
 
 router.post('/', upload.fields([
   { name: 'image', maxCount: 10}, 
+{ name: 'centerImage', maxCount: 1 },
   { name: 'video' , maxCount: 1}])  , async (req, res) => {
   try {
     console.log("Incoming data:", req.body);
@@ -53,6 +54,19 @@ router.post('/', upload.fields([
 
     let imageUrls = [];
     let videoUrl = '';
+    let centerImageUrl = '';
+
+    const centerImgFile = req.files.centerImage?.[0];
+if (centerImgFile) {
+  const centerUpload = await cloudinary.uploader.upload(centerImgFile.path, {
+    resource_type: 'image',
+    folder: 'frames'
+  });
+  centerImageUrl = centerUpload.secure_url;
+  console.log('✅ Center image uploaded:', centerImageUrl);
+} else {
+  return res.status(400).json({ message: 'Center image file is missing.' });
+}
 
    if (req.files.image && req.files.image.length > 0) {
   try {
@@ -94,6 +108,7 @@ router.post('/', upload.fields([
       pricing,
       colors: colors ? colors.split(',').map(c => c.trim()) : [],
       material,
+      centerImage: centerImageUrl,
       imageUrls: imageUrls,
       videoUrl: videoUrl,
       outOfStock: outOfStock === 'true',
@@ -159,6 +174,7 @@ router.get('/:id', async (req, res) => {
 // ❌ Delete frame
 router.delete('/:id', async (req, res) => {
   try {
+    console.log(req.params.id);
     await Frame.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Frame deleted successfully' });
   } catch (error) {

@@ -15,7 +15,7 @@
 
   <div class="frame-grid">
     <div class="frame-card" *ngFor="let frame of frames">
-      <img [src]="frame.imageUrl" alt="{{ frame.title }}" class="frame-img" />
+      <img [src]="frame.imageUrls?.[0]" alt="{{ frame.title }}" class="frame-img" />
       <div class="frame-details">
         <h3>{{ frame.title }}</h3>
         <p><strong>Material:</strong> {{ frame.material }}</p>

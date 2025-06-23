@@ -40,24 +40,37 @@
   Logout
 </button>
 
-
-<!-- Product List -->
+<!-- Product View -->
 <div class="product-container" *ngIf="product">
   <div class="product-content">
+    
+    <!-- Media Section: Multiple Images + Video -->
     <div class="product-media">
-      <img [src]="product.imageUrl" alt="Frame Image" class="product-image" />
 
+      <!-- ✅ Display All Uploaded Images -->
+      <div class="product-images">
+        <img
+          *ngFor="let img of product.imageUrls"
+          [src]="img"
+          alt="Frame Image"
+          class="product-image"
+        />
+      </div>
+
+      <!-- ✅ Display Video -->
       <video
         *ngIf="product.videoUrl"
         class="product-video"
         controls
-        poster="{{ product.imageUrl }}"
+        poster="{{ product.imageUrls?.[0] || '' }}"
       >
         <source [src]="product.videoUrl" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+
     </div>
 
+    <!-- Product Info -->
     <div class="product-info">
       <h2 class="product-title">{{ product.title }}</h2>
 
@@ -79,8 +92,8 @@
       <div *ngIf="selectedPrice !== null" class="selected-price">
         <p><strong>Selected Price:</strong> ₹{{ selectedPrice }}</p>
       </div>
-      
-       <!-- Full Pricing List (optional) -->
+
+      <!-- Full Pricing List (optional) -->
       <div class="product-pricing">
         <p *ngFor="let price of product.pricing">
           <strong>Size:</strong> {{ price.size }} |
@@ -88,11 +101,11 @@
         </p>
       </div>
 
+      <!-- Action Buttons -->
       <div class="action-buttons">
         <button class="buy-btn" (click)="buyNow()">Buy Now</button>
-        <button class="preview-btn" (click)="previewImage()">Image Preview</button>
+        <button class="preview-btn" (click)="previewImage(productId)">Image Preview</button>
       </div>
     </div>
   </div>
 </div>
-
