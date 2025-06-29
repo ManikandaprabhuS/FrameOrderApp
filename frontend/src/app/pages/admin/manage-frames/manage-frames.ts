@@ -4,7 +4,7 @@ import { AuthService } from '../../../services/auth';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; 
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms'; 
 import { Component, NgZone, OnInit } from '@angular/core';
 
 @Component({
@@ -12,37 +12,24 @@ import { Component, NgZone, OnInit } from '@angular/core';
   standalone: true,
   templateUrl: './manage-frames.html',
   styleUrl: './manage-frames.css',
-  imports: [CommonModule, FormsModule] 
+  imports: [CommonModule, ReactiveFormsModule,FormsModule] 
 })
 
 export class ManageFrames implements OnInit {
-   availableSizes = ['8x10', '10x12', '12x16', '16x20', '18x24'];
+   frameForm!: FormGroup;
+  availableSizes = ['8x10', '10x12', '12x16', '16x20', '18x24'];
   availableColors = ['Black', 'White', 'Brown', 'Gold', 'Silver'];
-  selectedSizes: string[] = [];
-  selectedColors: string[] = [];
-  pricing: { size: string; price: number }[] = [];
 
-  newFrame: Frame = {
-    title: '',
-    colors: [],
-    material: '',
-    pricing: [],      // ✅ new structure replacing sizes + price
-    image: '',
-    video: '',
-    outOfStock: false,
-  };
-    frames: Frame[] = [];
-  baseUrl = 'http://localhost:5000'; 
-
-  imageFiles: File[] = [];
+  imageFile: File[] = [];
   videoFile: File | null = null;
-  sizePrices: any;
   centerImageFile: File | null = null;
 
+  frames: Frame[] = [];
+  baseUrl = 'http://localhost:5000';
 
   constructor(
+    private fb: FormBuilder,
     private http: HttpClient,
-    private ngZone: NgZone,
     private frameService: FrameService,
     private authService: AuthService,
     private router: Router,
@@ -50,169 +37,145 @@ export class ManageFrames implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.initForm();
     this.loadFrames();
   }
 
-  loadFrames() {
-    this.frameService.getAll().subscribe(data => {
-       this.ngZone.run(() => {
-      this.frames = data;
-    });
+  initForm() {
+    this.frameForm = this.fb.group({
+      title: ['', Validators.required],
+      material: ['', Validators.required],
+      colors: this.fb.array([]),
+      outOfStock: [false],
+      pricing: this.fb.array([])
     });
   }
-   onLogout() {
+
+  get pricing(): FormArray {
+    return this.frameForm.get('pricing') as FormArray;
+  }
+
+  loadFrames() {
+    this.frameService.getAll().subscribe((data) => {
+      this.frames = data;
+    });
+  }
+
+  onLogout() {
     this.authService.logout();
     this.toastr.success('Logged out successfully', 'Success');
     this.router.navigate(['']);
   }
 
-  resetForm() {
-  this.newFrame = {
-    title: '',
-    colors: [],
-    material: '',
-    pricing: [],      // ✅ new structure replacing sizes + price
-    image: '',
-    video: '',
-    outOfStock: false
-  };
-  // Reset all arrays & files
-  this.selectedSizes = [];
-  this.selectedColors = [];
-  this.imageFiles = [];
-  this.videoFile = null;
-  this.centerImageFile = null;  // ✅ Added this line for centerImage
-}
-
-addFrame() {
-  const formData = new FormData();
-  formData.append('title', this.newFrame.title);
-  //formData.append('sizes', this.selectedSizes.join(','));   // ✅ plural
-  formData.append('colors', this.selectedColors.join(',')); // ✅ plural
-  formData.append('material', this.newFrame.material);
-  formData.append('pricing', JSON.stringify(this.pricing));
-  formData.append('outOfStock', String(this.newFrame.outOfStock));
-
-  // 👇 Append all selected image files
-  this.imageFiles.forEach((file, index) => {
-    formData.append('image', file); // same key name "images"
-  });
-
-  if (this.videoFile) formData.append('video', this.videoFile);
-  if (this.centerImageFile) {
-  formData.append('centerImage', this.centerImageFile);
-}
-
-  // Build pricing array from selectedSizes and sizePrices
-  const pricingArray = this.selectedSizes.map(size => {
-    const matched = this.pricing.find(p => p.size === size);
-  return {
-    size,
-    price: matched ? matched.price : 0
+  addSize(size: string) {
+    const group = this.fb.group({
+      size: [size],
+      price: [0, Validators.required],
+      units: [0, Validators.required],
+      imageFile: [null]
+    });
+    this.pricing.push(group);
   }
-  });
+  hasSize(size: string): boolean {
+  return this.pricing.controls.some(c => c.value.size === size);
+}
 
-  this.http.post(`${this.baseUrl}/api/frames`, formData).subscribe({
-    next: () => {
-      this.toastr.success('Frame added successfully!');
-      this.newFrame = {
-          title: '',
-          colors: [],
-          material: '',
-          pricing: [],      // ✅ new structure replacing sizes + price
-          image: '',
-          video: ''
-        };
-        this.resetForm();
-        this.imageFiles = [];
-        this.selectedSizes = [];
-        this.selectedColors = [];
-        this.pricing = []; 
-        this.loadFrames();
+getPricingGroup(size: string): FormGroup | null {
+  const found = this.pricing.controls.find(c => c.value.size === size);
+  return found instanceof FormGroup ? found : null;
+}
 
-    },
-    error: (err: any) => {
-      this.toastr.error('Error adding frame');
-      console.error(err);
+
+  removeSize(size: string) {
+    const index = this.pricing.controls.findIndex(c => c.value.size === size);
+    if (index !== -1) this.pricing.removeAt(index);
+  }
+
+  onSizeToggle(event: any, size: string) {
+    if (event.target.checked) {
+      this.addSize(size);
+    } else {
+      this.removeSize(size);
     }
-  });
-}
-
-//For Sizes
-toggleSizeSelection(size: string) {
-  const index = this.selectedSizes.indexOf(size);
-
-  if (index === -1) {
-    this.selectedSizes.push(size);
-     this.pricing.push({ size, price: 0 }); // initialize with 0 price
-   // this.sizePrices[size] = 0; // default
-  } else {
-    this.selectedSizes.splice(index, 1);
-   this.pricing = this.pricing.filter(p => p.size !== size);
   }
-}
 
-updatePrice(size: string, newPrice: number) {
-  const item = this.pricing.find(p => p.size === size);
-  if (item) {
-    item.price = newPrice;
+  toggleColorSelection(color: string) {
+    const colors = this.frameForm.get('colors') as FormArray;
+    const index = colors.controls.findIndex(ctrl => ctrl.value === color);
+    if (index >= 0) {
+      colors.removeAt(index);
+    } else {
+      colors.push(new FormControl(color));
+    }
   }
-}
-getPrice(size: string): number {
-  const item = this.pricing.find(p => p.size === size);
-  return item ? item.price : 0;
-}
 
-getValueAsNumber(event: Event): number {
-  const input = event.target as HTMLInputElement;
-  return input.valueAsNumber;
-}
-
-toggleColorSelection(color: string) {
-  const index = this.selectedColors.indexOf(color);
-  if (index === -1) {
-    this.selectedColors.push(color);
-  } else {
-    this.selectedColors.splice(index, 1);
+  onSizeImageChange(event: any, size: string) {
+    const file = event.target.files[0];
+    console.log(file);
+    const control = this.pricing.controls.find(c => c.value.size === size);
+   if (control) {
+    (control as FormGroup).addControl('imageFile', new FormControl(file));
   }
-}
-
-// toggleSelection(value: string, type: 'size' | 'color') {
-//   const list = type === 'size' ? this.selectedSizes : this.selectedColors;
-//   const index = list.indexOf(value);
-
-//   if (index > -1) {
-//     list.splice(index, 1); // remove
-//   } else {
-//     list.push(value); // add
-//   }
-// }
-
-onCenterImageSelected(event: any) {
-  this.centerImageFile = event.target.files[0];
-}
-
-onFileChange(event: any) {
-  if (event.target.files && event.target.files.length > 0) {
-    this.imageFiles = Array.from(event.target.files);
   }
-}
 
-onFileVideoChange(event: any, type: 'video') {
-  const file = event.target.files[0];
-   if (type === 'video') {
-    this.videoFile = file;
-  } else {
-    this.toastr.error('This is Not correct Format please upload Valid Video format');
+  onFileVideoChange(event: any) {
+    this.videoFile = event.target.files[0];
   }
-}
+
+  onCenterImageSelected(event: any) {
+    this.centerImageFile = event.target.files[0];
+  }
+
+  addFrame() {
+    const formData = new FormData();
+    const formValue = this.frameForm.value;
+
+    formData.append('title', formValue.title);
+    formData.append('material', formValue.material);
+    formData.append('colors', formValue.colors.join(','));
+    formData.append('outOfStock', formValue.outOfStock.toString());
+
+    const pricingToSend = formValue.pricing.map((p: any) => ({
+      size: p.size,
+      price: p.price,
+      units: p.units,
+      //imageFile: p.imageFile
+    }));
+
+    formData.append('pricing', JSON.stringify(pricingToSend));
+
+    this.pricing.controls.forEach((group: any) => {
+      const size = group.get('size')?.value;
+      const file = group.get('imageFile')?.value;
+      if (file) {
+        formData.append(`sizeImage-${size}`, file);
+      }
+    });
+
+    if (this.videoFile) {
+      formData.append('video', this.videoFile);
+    }
+    if (this.centerImageFile) {
+      formData.append('centerImage', this.centerImageFile);
+    }
+
+    this.http.post(`${this.baseUrl}/api/frames`, formData).subscribe({
+      next: () => {
+        this.toastr.success('Frame added successfully!');
+        this.initForm();
+        this.loadFrames();
+      },
+      error: (err) => {
+        this.toastr.error('Error adding frame');
+        console.error(err);
+      }
+    });
+  }
 
   deleteFrame(id: string) {
     this.frameService.delete(id).subscribe(() => {
-      this.toastr.success('Successfully Deleted')
+      this.toastr.success('Successfully Deleted');
       this.loadFrames();
-
     });
   }
 }
-

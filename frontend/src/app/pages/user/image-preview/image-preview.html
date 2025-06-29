@@ -20,13 +20,25 @@
     </div>
   </div>
 
-  <!-- Preview Area -->
-  <div class="preview-display" *ngIf="uploadedImage && selectedCenterImage">
-    <div class="frame-preview">
-      <img [src]="selectedCenterImage" class="center-frame" />
-      <img [src]="uploadedImage" class="user-image" />
-    </div>
+<div class="preview-display" *ngIf="uploadedImage && selectedCenterImage && transparentBox.width">
+  <div class="frame-preview">
+    <img
+      [src]="selectedCenterImage"
+      class="center-frame"
+      (load)="onFrameLoad($event)"
+    />
+    <img
+      [src]="uploadedImage"
+      class="user-image"
+      [ngStyle]="{
+        top: transparentBox.top + 'px',
+        left: transparentBox.left + 'px',
+        width: transparentBox.width + 'px',
+        height: transparentBox.height + 'px'
+      }"
+    />
   </div>
+</div>
 
   <!-- Proceed Button -->
   <div class="proceed">

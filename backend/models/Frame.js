@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const frameSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  imageUrls: [String],
   centerImage: {
   type: String,
   required: true // or false if optional
@@ -12,7 +11,9 @@ const frameSchema = new mongoose.Schema({
   pricing: [
     {
       size: { type: String, required: true },
-      price: { type: Number, required: true }
+      price: { type: Number, required: true },
+      image: { type: String },  // ✅ Image for each size
+      units: { type: Number, default: 0 } // ✅ Stock per size
     }
   ],
   videoUrl: { type: String }, // Optional video preview,
