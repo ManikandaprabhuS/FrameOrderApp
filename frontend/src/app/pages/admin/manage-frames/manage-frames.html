@@ -1,58 +1,61 @@
+<!-- manage-frames.html -->
 <div class="logout-wrapper">
-    <button class="logout-btn" (click)="onLogout()">Logout</button>
-  </div>
-  
+  <button class="logout-btn" (click)="onLogout()">Logout</button>
+</div>
+
 <section class="admin-panel">
   <h2 class="section-title">Add New Frame</h2>
 
-  <form class="frame-form" (ngSubmit)="addFrame()">
+  <form [formGroup]="frameForm" (ngSubmit)="addFrame()" class="frame-form">
     <div class="form-grid">
       <div class="form-group">
         <label>Title</label>
-        <input [(ngModel)]="newFrame.title" name="title" required />
+        <input formControlName="title" required />
       </div>
 
       <div class="form-group">
         <label>Material</label>
-        <input [(ngModel)]="newFrame.material" name="material" required />
+        <input formControlName="material" required />
       </div>
 
       <div class="form-group">
         <label>Choose Sizes:</label>
         <div *ngFor="let size of availableSizes" class="size-option">
-          <input type="checkbox" [value]="size" (change)="toggleSizeSelection(size)" [checked]="selectedSizes.includes(size)" />
+          <input type="checkbox" [checked]="hasSize(size)" (change)="onSizeToggle($event, size)" />
           {{ size }}
-          <input *ngIf="selectedSizes.includes(size)" type="number" [value]="getPrice(size)"
-            (input)="updatePrice(size, getValueAsNumber($event))" placeholder="Price" />
+
+          <div *ngIf="hasSize(size)" class="nested-fields">
+            <div *ngIf="getPricingGroup(size) as pricingGroup" [formGroup]="pricingGroup" class="nested-fields">
+  <input type="number" formControlName="price" placeholder="Price" />
+  <input type="number" formControlName="units" placeholder="Units" />
+  <input type="file" (change)="onSizeImageChange($event, size)" />
+</div>
+          </div>
         </div>
       </div>
 
       <div class="form-group">
         <label>Choose Colors:</label>
         <div *ngFor="let color of availableColors" class="color-option">
-          <input type="checkbox" [value]="color" [checked]="selectedColors.includes(color)"
-            (change)="toggleColorSelection(color)" />
+          <input type="checkbox" (change)="toggleColorSelection(color)"
+            [checked]="frameForm.value.colors.includes(color)" />
           {{ color }}
         </div>
       </div>
 
       <div class="form-group">
-        <label>Image</label>
-        <input type="file" multiple (change)="onFileChange($event)" name="image" multiple />
+        <label>Video</label>
+        <input type="file" (change)="onFileVideoChange($event)" />
       </div>
 
       <div class="form-group">
-        <label>Video</label>
-        <input type="file" (change)="onFileVideoChange($event, 'video')" />
+        <label>Center Preview Image</label>
+        <input type="file" (change)="onCenterImageSelected($event)" />
       </div>
-
-      <label for="centerImage">Center Preview Image</label>
-<input type="file" name="centerImage" (change)="onCenterImageSelected($event)">
-
 
       <div class="form-group checkbox">
         <label>
-          <input type="checkbox" [(ngModel)]="newFrame.outOfStock" name="outOfStock" />
+          <input type="checkbox" formControlName="outOfStock" />
           Out of Stock
         </label>
       </div>
@@ -60,7 +63,9 @@
 
     <button type="submit" class="submit-btn">Add Frame</button>
   </form>
+</section>
 
+<section>
   <h2 class="section-title">List of Frames</h2>
   <div class="table-wrapper">
     <table>
@@ -112,5 +117,4 @@
       </tbody>
     </table>
   </div>
-
 </section>

@@ -5,12 +5,9 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const cloudinary = require('../utils/cloudinary');
-
-
-// Define where and how to store uploaded files
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Ensure this folder exists
+    cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + file.originalname;
@@ -20,21 +17,20 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50 MB
+  limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-router.post('/', upload.fields([
-  { name: 'image', maxCount: 10}, 
-{ name: 'centerImage', maxCount: 1 },
-  { name: 'video' , maxCount: 1}])  , async (req, res) => {
+// Use upload.any() for dynamic fields like image_8x10
+router.post('/', upload.any(), async (req, res) => {
+   let pricing = [];
   try {
     console.log("Incoming data:", req.body);
-    const { title, colors, material, outOfStock } = req.body;
+    const { title, colors, material, outOfStock, pricing } = req.body;
 
-    const pricingRaw = req.body.pricing; // expected to be a JSON string
-    let pricing = [];
+    const pricingRaw = req.body.pricing;
     try {
       pricing = JSON.parse(pricingRaw);
+      console.log(pricingRaw.image);
       if (!Array.isArray(pricing) || pricing.length === 0) {
         return res.status(400).json({ message: 'Pricing data is required' });
       }
@@ -42,99 +38,72 @@ router.post('/', upload.fields([
       return res.status(400).json({ message: 'Invalid pricing format' });
     }
 
-    // Convert comma-separated strings to arrays
+    const filesMap = {};
+    req.files.forEach(file => {
+      filesMap[file.fieldname] = file;
+    });
+
     const colorsArray = colors ? colors.split(',').map(c => c.trim()) : [];
 
-    // Should show array
-    console.log('Colors:', colors);
-
-    // You can access uploaded files via req.files.image[0] and req.files.video[0]
-    const imageFiles = req.files.image?.[0];
-    const videoFile = req.files.video?.[0];
-
-    let imageUrls = [];
-    let videoUrl = '';
+    // Upload centerImage
     let centerImageUrl = '';
-
-    const centerImgFile = req.files.centerImage?.[0];
-if (centerImgFile) {
-  const centerUpload = await cloudinary.uploader.upload(centerImgFile.path, {
-    resource_type: 'image',
-    folder: 'frames'
-  });
-  centerImageUrl = centerUpload.secure_url;
-  console.log('✅ Center image uploaded:', centerImageUrl);
-} else {
-  return res.status(400).json({ message: 'Center image file is missing.' });
-}
-
-   if (req.files.image && req.files.image.length > 0) {
-  try {
-    for (const file of req.files.image) {
-      const uploaded = await cloudinary.uploader.upload(file.path, {
+    if (filesMap.centerImage) {
+      const centerUpload = await cloudinary.uploader.upload(filesMap.centerImage.path, {
         resource_type: 'image',
         folder: 'frames'
       });
-      imageUrls.push(uploaded.secure_url);
+      centerImageUrl = centerUpload.secure_url;
+    } else {
+      return res.status(400).json({ message: 'Center image is required' });
     }
-    console.log('✅ All images uploaded:', imageUrls);
-  } catch (uploadErr) {
-    console.error('❌ Image upload failed:', uploadErr.message);
-    return res.status(500).json({ message: 'Image upload failed. Please try again.' });
-  }
-}else {
-  return res.status(400).json({ message: 'At least one image file is required.' });
-}
 
-    if (videoFile) {
-      try {
-        const videoUpload = await cloudinary.uploader.upload(videoFile.path, {
-          resource_type: 'video',
+    // Upload video
+    let videoUrl = '';
+    if (filesMap.video) {
+      const videoUpload = await cloudinary.uploader.upload(filesMap.video.path, {
+        resource_type: 'video',
+        folder: 'frames'
+      });
+      videoUrl = videoUpload.secure_url;
+    } else {
+      return res.status(400).json({ message: 'Video is required' });
+    }
+
+    // Add uploaded image per size to pricing array
+    for (let item of pricing) {
+      console.log(item);
+      const dynamicFieldName = `image_${item.size}`;
+      const file = filesMap[dynamicFieldName];
+      if (file) {
+        const uploadResult = await cloudinary.uploader.upload(file.path, {
+          resource_type: 'image',
           folder: 'frames'
         });
-        videoUrl = videoUpload.secure_url;
-        console.log('✅ Video uploaded:', videoUrl);
-      } catch (uploadErr) {
-        console.error('❌ Video upload failed:', uploadErr.message);
-        return res.status(500).json({ message: 'Video upload failed. Please try again later.' });
+        
+        item.image = uploadResult.secure_url;
+        console.log(item.image);
       }
-    } else {
-      return res.status(400).json({ message: 'Video file is missing.' });
+      item.units = parseInt(item.units) || 0;
     }
 
-    // Just for demonstration; in real app you'd save to cloud storage or convert to base64
     const newFrame = new Frame({
       title,
-      pricing,
-      colors: colors ? colors.split(',').map(c => c.trim()) : [],
       material,
+      colors: colorsArray,
+      pricing,
       centerImage: centerImageUrl,
-      imageUrls: imageUrls,
-      videoUrl: videoUrl,
-      outOfStock: outOfStock === 'true',
+      videoUrl,
+      outOfStock: outOfStock === 'true'
     });
 
     await newFrame.save();
-    console.log(newFrame);
-    res.status(201).json({ message: 'Frame added successfully' });
+    return res.status(201).json({ message: 'Frame added successfully' });
   } catch (err) {
-    console.error('❌ Frame add failed:', err.message);
-    res.status(500).json({ message: 'Failed to add frame. Please try again.' });
+    console.error('Frame add failed:', err.message);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-// ➕ Add new frame
-// router.post('/', async (req, res) => {
-//   try {
-//     const frame = new Frame(req.body);
-//     await frame.save();
-//     res.status(201).json(frame);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Failed to create frame', error });
-//   }
-// });
-
-// 📜 Get all frames
 router.get('/', async (req, res) => {
   try {
     const frames = await Frame.find();
@@ -144,7 +113,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✏️ Update frame
 router.put('/:id', async (req, res) => {
   try {
     const frame = await Frame.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -154,7 +122,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// GET /api/frames/:id
 router.get('/:id', async (req, res) => {
   try {
     console.log(req.params.id);
@@ -170,8 +137,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
-// ❌ Delete frame
 router.delete('/:id', async (req, res) => {
   try {
     console.log(req.params.id);
